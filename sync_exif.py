@@ -1,10 +1,13 @@
 #import pexif
+import sys
+import math
 import piexif
 import piexif.helper
 from PIL import Image 
 
 def dump_exif():
     #file_name = "/Users/junlin/test/gps/IMG_3777.JPG"
+    #file_name = "/Users/junlin/test/gps/IMG_5180.JPG"
     file_name = "/Users/junlin/test/gps/no_gps.jpg"
     exif_dict = piexif.load(file_name)
     for ifd in ("0th", "Exif", "GPS", "1st"):
@@ -12,46 +15,58 @@ def dump_exif():
         for tag in exif_dict[ifd]:
             print(piexif.TAGS[ifd][tag]["name"], exif_dict[ifd][tag])
 
-if __name__ == '__main__':
-    dump_exif()
-    file_name = "/Users/junlin/test/gps/IMG_7470.JPG"
+# 转换纬度 DMS (degree minute second)
+def convert_lat_to_dms(latitude):
+    latitude = math.fabs(latitude)
+    degree = math.floor(latitude)
+    minute = math.floor((latitude - degree)*60)
+    second = float(latitude*3600 - degree*3600 - minute*60)
+    return ((degree, 1), (minute, 1), (math.floor(second*1000000), 1000000))
 
-    #jf = pexif.JpegFile.fromFile(")
-    #(lat, lng) = (121.624388, 31.213554)
-    #jf.set_geo(lat, lng)
-    #new_file = jf.writeString()
-    #print(new_file)
+# 转换经度
+def convert_log_to_dms(longitude):
+    longitude = math.fabs(longitude)
+    degree = math.floor(longitude)
+    minute = math.floor((longitude - degree)*60)
+    second = float(longitude*3600 - degree*3600 - minute*60)
+    return ((degree, 1), (minute, 1), (math.floor(second*1000000), 1000000))
 
-    # im = Image.open(file_name)
-    # exif_dict = piexif.load(im.info["exif"])
-    # w, h = im.size
-    # exif_dict["GPS"]["GPSLongitude"] = 121.624388
-    # exif_dict["GPS"]["GPSLatitude"] = 31.213554
-    # exif_bytes = piexif.dump(exif_dict)
-    # im.save("/Users/junlin/test/gps/IMG_7470_gps.JPG", "jpeg", exif=exif_bytes, quality=100)
+def create_gps_ifd(longitude, latitude):
+    ifd_list = []
+    ifd_list.append("%d: (2, 0, 0, 0)" % piexif.GPSIFD.GPSVersionID)
 
-    # exif_dict = piexif.load(file_name)
-    # user_comment = piexif.helper.UserComment.dump(u"{\"comment\":\"this is test!\"}")
-    # exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment
-    # exif_raw = piexif.dump(exif_dict)
-    # piexif.insert(exif_raw, "/Users/junlin/test/gps/no_gps.JPG")
+    EW = "E"
+    if(longitude < 0.0):
+        EW = "W"
+    ifd_list.append("%d: %s" % (piexif.GPSIFD.GPSLongitudeRef, EW))
+    ifd_list.append( ("%d: %s" % (piexif.GPSIFD.GPSLongitude, convert_log_to_dms(longitude))) )
 
-    # gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),  # BYTE, count 4
-    #        piexif.GPSIFD.GPSAltitudeRef: 1,  # BYTE, count 1 ... also be accepted '(1,)'
-    #        }
-    gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),  # BYTE, count 4
-                piexif.GPSIFD.GPSLongitudeRef: u"E",
-                piexif.GPSIFD.GPSLongitude: ((121, 1), (28, 1), (1816, 100)),
-                piexif.GPSIFD.GPSLatitudeRef: u"N",
-                piexif.GPSIFD.GPSLatitude: ((31, 1), (12, 1), (4965, 100)),
-           }
-# GPSLatitudeRef b'N'
-# GPSLatitude ((31, 1), (12, 1), (4965, 100))
-# GPSLongitudeRef b'E'
-# GPSLongitude ((121, 1), (28, 1), (1816, 100))
-# GPSAltitudeRef 0
-# GPSAltitude (80089, 2553)
-# GPSSpeedRef b'K'           
+    SN = "N"
+    if(latitude < 0.0):
+        SN = "S"
+    ifd_list.append("%d: %s" % (piexif.GPSIFD.GPSLatitudeRef, SN))
+    ifd_list.append( ("%d: %s" % (piexif.GPSIFD.GPSLatitude, convert_lat_to_dms(latitude))) )
+
+    # 
+    gps_ifd = { piexif.GPSIFD.GPSVersionID: (2, 0, 0, 0),  # BYTE, count 4
+        piexif.GPSIFD.GPSLongitudeRef: EW,
+        piexif.GPSIFD.GPSLongitude: convert_log_to_dms(longitude),
+        piexif.GPSIFD.GPSLatitudeRef: SN,
+        piexif.GPSIFD.GPSLatitude: convert_lat_to_dms(latitude)
+    }
+    return gps_ifd
+
+def process(source_file):
+    gps_ifd = create_gps_ifd(121.30265, 31.150299999999998)
+    print("---->>", gps_ifd)
     exif_dict = {"GPS":gps_ifd}
     exif_raw = piexif.dump(exif_dict)
-    piexif.insert(exif_raw, "/Users/junlin/test/gps/no_gps.JPG")
+    piexif.insert(exif_raw, source_file)
+    print("Done.")
+
+if __name__ == '__main__':
+    dump_exif()
+    file_name = "/Users/junlin/test/gps/IMG_5180.JPG"
+    file_name = "/Users/junlin/test/gps/no_gps.JPG"
+    process(file_name)
+    sys.exit()
