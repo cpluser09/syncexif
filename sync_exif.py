@@ -1,9 +1,34 @@
 #import pexif
+import os
 import sys
 import math
+from os.path import isfile, join
+from os import listdir, path, remove
+import glob
+import json
+import requests
+
 import piexif
 import piexif.helper
-from PIL import Image 
+from PIL import Image
+
+PICTURE_FOLDER = ""
+
+OPTION_DEBUG = 0
+
+GPS_RECORDERS = {}
+
+def usage():
+	print ("""
+usage: add_frame [path_of_picture][-h][-v]
+
+arguments:
+    path_of_picture	    path of JPG file
+    -d                  enable debug mode
+    -h, --help			show this help message and exit
+    -v, --version		show version information and exit
+""")
+
 
 def dump_exif():
     #file_name = "/Users/junlin/test/gps/IMG_3777.JPG"
@@ -56,17 +81,52 @@ def create_gps_ifd(longitude, latitude):
     }
     return gps_ifd
 
-def process(source_file):
+def search_files(dirname):
+    result = []
+    filter = [".jpg", ".JPG", ".jpeg", ".JPEG"]
+    for filename in os.listdir(dirname):
+        apath = os.path.join(dirname, filename)
+        ext = os.path.splitext(apath)[1]
+        if ext in filter:
+            result.append(apath)
+    return result
+        
+def insert_gps(source_file):
     gps_ifd = create_gps_ifd(121.30265, 31.150299999999998)
     print("---->>", gps_ifd)
     exif_dict = {"GPS":gps_ifd}
     exif_raw = piexif.dump(exif_dict)
     piexif.insert(exif_raw, source_file)
+    print(source_file)
+
+
+def process():
+    # search 
+    files = search_files("/Users/junlin/test/gps")
+    if len(files) == 0:
+        print("no file found. %s" % PICTURE_FOLDER)
+        sys.exit()
+
+    for each_picture in files:
+        insert_gps(each_picture)
+        if OPTION_DEBUG == 1:
+            break
     print("Done.")
 
 if __name__ == '__main__':
-    dump_exif()
-    file_name = "/Users/junlin/test/gps/IMG_5180.JPG"
-    file_name = "/Users/junlin/test/gps/no_gps.JPG"
-    process(file_name)
-    sys.exit()
+    if len(sys.argv) == 1:
+        print("arguments error!\r\n-h shows usage.")
+        # PICTURE_FOLDER = "/Users/junlin/test/gps"
+        # process()
+        sys.exit()
+    for arg in sys.argv[1:]:
+        if arg == '-v' or arg == "--version":
+            print("1.0.0")
+            sys.exit()
+        elif arg == '-h' or arg == '--help':
+            usage()
+            sys.exit()
+        elif arg == '-d' or arg == '--debug':
+            OPTION_DEBUG = 1
+    PICTURE_FOLDER = sys.argv[1]
+    process()
