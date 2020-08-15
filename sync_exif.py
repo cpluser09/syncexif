@@ -13,6 +13,7 @@ import piexif.helper
 from PIL import Image
 
 PICTURE_FOLDER = ""
+GPS_DATABASE_PATH = "/Users/junlin/test/gps"
 
 OPTION_DEBUG = 0
 
@@ -90,15 +91,75 @@ def search_files(dirname):
         if ext in filter:
             result.append(apath)
     return result
+
+def insert_user_comment(comment, file_name):
+    exif_dict = piexif.load(file_name)
+    user_comment = piexif.helper.UserComment.dump(u"{\"comment\":\"this is test!\"}")
+    exif_dict["Exif"][piexif.ExifIFD.UserComment] = comment
+    exif_raw = piexif.dump(exif_dict)
+    piexif.insert(exif_raw, file_name)
+
+def queryGps(shot_time):
+    date, time = shot_time.split(" ")
+    gps_file = GPS_DATABASE_PATH + "/" + date.replace(":", "-") + ".txt"
+    handle_gps_list = None
+    try:
+        handle_gps_list = open(gps_file, "rb")
+    except FileNotFoundError:
+        print ("file is not found.", gps_file)
+    except PermissionError:
+        print ("don't have permission to access this file.", gps_file)
+    if handle_gps_list is  None:
+        #print("read file list failed.")
+        return (None, None)
+    lines = handle_gps_list.readlines()
+    if len(lines) == 0:
+        print("empty file!")
+        return (None, None)
+    for line in lines:
+        line = line.decode()
+        #print(line)
+        try:
+            gps = json.loads(line)
+            if "time" not in gps.keys():
+                print("format invalid or no gps info.")
+                continue
+            gps_date, gps_time = gps["time"].split(" ")
+            if gps_time > time:
+                print("found shot time: ", time, ", gps time: ", gps_time, gps["longitude"], gps["latitude"], gps["thoroughfare"])
+                return (gps["longitude"], gps["latitude"])
+                break
+        except BaseException:
+            continue
+        else:
+            continue
+
+    return (None, None)
+
         
 def insert_gps(source_file):
-    gps_ifd = create_gps_ifd(121.30265, 31.150299999999998)
+    origin_exif = piexif.load(source_file)
+    if "GPS" in origin_exif.keys() and piexif.GPSIFD.GPSLongitude in origin_exif["GPS"].keys():
+        print("already has GPS in exif.", source_file)
+        return
+    if "Exif" not in origin_exif.keys() or len(origin_exif["Exif"]) == 0:
+        print("no exif.", source_file)
+        return
+    if piexif.ExifIFD.DateTimeOriginal not in origin_exif["Exif"]:
+        print("no shot time.", source_file)
+        return
+    shot_time = origin_exif["Exif"][piexif.ExifIFD.DateTimeOriginal]
+    #shot_time = b"2020:08:14 20:05:56"
+    longitude, latitude = queryGps(shot_time.decode("utf8"))
+    if longitude is None or latitude is None:
+        print("not found gps in database.")
+        return
+    gps_ifd = create_gps_ifd(longitude, latitude)
     print("---->>", gps_ifd)
-    exif_dict = {"GPS":gps_ifd}
-    exif_raw = piexif.dump(exif_dict)
+    origin_exif["GPS"] = gps_ifd
+    exif_raw = piexif.dump(origin_exif)
     piexif.insert(exif_raw, source_file)
     print(source_file)
-
 
 def process():
     # search 
@@ -106,7 +167,6 @@ def process():
     if len(files) == 0:
         print("no file found. %s" % PICTURE_FOLDER)
         sys.exit()
-
     for each_picture in files:
         insert_gps(each_picture)
         if OPTION_DEBUG == 1:
