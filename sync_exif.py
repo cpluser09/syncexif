@@ -13,11 +13,11 @@ import piexif.helper
 from PIL import Image
 
 PICTURE_FOLDER = ""
-GPS_DATABASE_PATH = "/Users/junlin/test/gps"
+GPS_DATABASE_PATH = "/Users/junlin/gps_db"
 
 OPTION_DEBUG = 0
 
-GPS_RECORDERS = {}
+GPS_LOG_FILS = {}
 
 def usage():
 	print ("""
@@ -99,22 +99,34 @@ def insert_user_comment(comment, file_name):
     exif_raw = piexif.dump(exif_dict)
     piexif.insert(exif_raw, file_name)
 
+def get_gps_content(gps_file):
+    lines = None
+    if gps_file not in GPS_LOG_FILS.keys():
+        handle_gps_list = None
+        try:
+            handle_gps_list = open(gps_file, "rb")
+        except FileNotFoundError:
+            print ("file is not found.", gps_file)
+        except PermissionError:
+            print ("don't have permission to access this file.", gps_file)
+        if handle_gps_list is  None:
+            #print("read file list failed.")
+            return None
+        lines = handle_gps_list.readlines()
+        if len(lines) == 0:
+            print("empty file!")
+            return None
+        # save it 
+        GPS_LOG_FILS[gps_file] = lines
+    else:
+        lines = GPS_LOG_FILS[gps_file]
+    return lines
+
 def queryGps(shot_time):
     date, time = shot_time.split(" ")
     gps_file = GPS_DATABASE_PATH + "/" + date.replace(":", "-") + ".txt"
-    handle_gps_list = None
-    try:
-        handle_gps_list = open(gps_file, "rb")
-    except FileNotFoundError:
-        print ("file is not found.", gps_file)
-    except PermissionError:
-        print ("don't have permission to access this file.", gps_file)
-    if handle_gps_list is  None:
-        #print("read file list failed.")
-        return (None, None)
-    lines = handle_gps_list.readlines()
-    if len(lines) == 0:
-        print("empty file!")
+    lines = get_gps_content(gps_file)
+    if lines is None:
         return (None, None)
     for line in lines:
         line = line.decode()
@@ -139,9 +151,9 @@ def queryGps(shot_time):
         
 def insert_gps(source_file):
     origin_exif = piexif.load(source_file)
-    if "GPS" in origin_exif.keys() and piexif.GPSIFD.GPSLongitude in origin_exif["GPS"].keys():
-        print("already has GPS in exif.", source_file)
-        return
+    # if "GPS" in origin_exif.keys() and piexif.GPSIFD.GPSLongitude in origin_exif["GPS"].keys():
+    #     print("already has GPS in exif.", source_file)
+    #     return
     if "Exif" not in origin_exif.keys() or len(origin_exif["Exif"]) == 0:
         print("no exif.", source_file)
         return
