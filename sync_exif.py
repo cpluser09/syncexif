@@ -122,6 +122,10 @@ def get_gps_content(gps_file):
         lines = GPS_LOG_FILS[gps_file]
     return lines
 
+def hms_to_second(hms):
+    hour, minute, second = hms.split(":")
+    return int(hour) * 3600 + int(minute) * 60 + int(second)
+
 def queryGps(shot_time):
     date, time = shot_time.split(" ")
     gps_file = GPS_DATABASE_PATH + "/" + date.replace(":", "-") + ".txt"
@@ -137,8 +141,11 @@ def queryGps(shot_time):
                 print("format invalid or no gps info.")
                 continue
             gps_date, gps_time = gps["time"].split(" ")
-            if gps_time > time:
-                print("found shot time: ", time, ", gps time: ", gps_time, gps["longitude"], gps["latitude"], gps["thoroughfare"])
+            if gps_date != date:
+                continue
+            diff = hms_to_second(gps_time) - hms_to_second(time)
+            if abs(diff) < 5:                
+                print("found shot time: ", shot_time, ", gps time: ", gps_date, gps_time, gps["longitude"], gps["latitude"], gps["thoroughfare"], "diff: ", diff, "secs")
                 return (gps["longitude"], gps["latitude"])
                 break
         except BaseException:
@@ -164,14 +171,14 @@ def insert_gps(source_file):
     #shot_time = b"2020:08:14 20:05:56"
     longitude, latitude = queryGps(shot_time.decode("utf8"))
     if longitude is None or latitude is None:
-        print("not found gps in database.")
+        print("not found gps in database.", source_file, shot_time)
         return
     gps_ifd = create_gps_ifd(longitude, latitude)
-    print("---->>", gps_ifd)
+    print(gps_ifd)
     origin_exif["GPS"] = gps_ifd
     exif_raw = piexif.dump(origin_exif)
     piexif.insert(exif_raw, source_file)
-    print(source_file)
+    print("---->>", source_file)
 
 def process():
     # search 
