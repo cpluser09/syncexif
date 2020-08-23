@@ -171,10 +171,10 @@ def insert_gps(source_file):
     #shot_time = b"2020:08:14 20:05:56"
     longitude, latitude = queryGps(shot_time.decode("utf8"))
     if longitude is None or latitude is None:
-        print("not found gps in database.", source_file, shot_time)
+        print("not found gps in database.", source_file, shot_time.decode("utf8"))
         return
     gps_ifd = create_gps_ifd(longitude, latitude)
-    print(gps_ifd)
+    #print(gps_ifd)
     origin_exif["GPS"] = gps_ifd
     exif_raw = piexif.dump(origin_exif)
     piexif.insert(exif_raw, source_file)
@@ -182,7 +182,7 @@ def insert_gps(source_file):
 
 def process():
     # search 
-    files = search_files("/Users/junlin/test/gps")
+    files = search_files(PICTURE_FOLDER)
     if len(files) == 0:
         print("no file found. %s" % PICTURE_FOLDER)
         sys.exit()
