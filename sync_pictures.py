@@ -17,10 +17,10 @@ def calc_dst_folder(source_file):
 
 def sync_file(source_file):
     global G_TOTAL_SYNC_COUNT
-    print("\ntry sync:", source_file)
+    #print("\ntry sync:", source_file)
     dst_file = calc_dst_folder(source_file)
     if os.path.exists(dst_file) == True:
-        print("skip...")
+        #print("skip...")
         return False
     dst_folder,_ = os.path.splitext(dst_file)
     dst_folder = dst_folder[0: dst_folder.rfind("/")]
@@ -28,7 +28,7 @@ def sync_file(source_file):
         os.makedirs(dst_folder)
     shutil.copyfile(source_file, dst_file)
     G_TOTAL_SYNC_COUNT = G_TOTAL_SYNC_COUNT + 1
-    print("sync  to:", dst_folder, "                ", G_TOTAL_SYNC_COUNT)
+    print("sync  to:", source_file, "                ", G_TOTAL_SYNC_COUNT)
     return True
 
 def search_files(root_name, filter, result):
