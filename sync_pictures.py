@@ -1,11 +1,12 @@
 import os
 import sys
 import shutil
+# ls -lR|grep "^-"|wc -l
 
 FOLDER_SOURCE = "/Users/junlin/myPhoto"
-FOLDER_DESTINATION = "/Users/junlin/myPhoto2"
-#FOLDER_DESTINATION = "/Volumes/myPhoto"
-FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG"]
+#FOLDER_DESTINATION = "/Users/junlin/myPhoto2"
+FOLDER_DESTINATION = "/Volumes/myPhoto"
+FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"]
 
 global G_TOTAL_SYNC_COUNT
 
@@ -53,6 +54,7 @@ def let_go():
     global G_TOTAL_SYNC_COUNT
     G_TOTAL_SYNC_COUNT = 0
     result = search_files(folder, FILE_FILTERS, result)
+    print("DONE. total %d files, synced %d files." % (len(result), G_TOTAL_SYNC_COUNT))
 
 if __name__ == '__main__':
     let_go()
