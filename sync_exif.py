@@ -12,7 +12,6 @@ import piexif
 import piexif.helper
 from PIL import Image
 
-PICTURE_FOLDER = ""
 GPS_DATABASE_PATH = "/Users/junlin/gps_db"
 
 OPTION_DEBUG = 0
@@ -180,11 +179,10 @@ def insert_gps(source_file):
     piexif.insert(exif_raw, source_file)
     print("---->>", source_file)
 
-def process():
-    # search 
-    files = search_files(PICTURE_FOLDER)
+def sync_exif(folder_path):
+    files = search_files(folder_path)
     if len(files) == 0:
-        print("no file found. %s" % PICTURE_FOLDER)
+        print("no file found. %s" % folder_path)
         sys.exit()
     for each_picture in files:
         insert_gps(each_picture)
@@ -195,8 +193,7 @@ def process():
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print("arguments error!\r\n-h shows usage.")
-        # PICTURE_FOLDER = "/Users/junlin/test/gps"
-        # process()
+        #process("/Users/junlin/test/gps")
         sys.exit()
     for arg in sys.argv[1:]:
         if arg == '-v' or arg == "--version":
@@ -207,5 +204,4 @@ if __name__ == '__main__':
             sys.exit()
         elif arg == '-d' or arg == '--debug':
             OPTION_DEBUG = 1
-    PICTURE_FOLDER = sys.argv[1]
-    process()
+    sync_exif(sys.argv[1])

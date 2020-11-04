@@ -1,10 +1,12 @@
 import os
 import sys
 import shutil
+from progress.bar import Bar
 
-FOLDER_SOURCE = "/Volumes/FUJI"
-FOLDER_DESTINATION = "/Users/junlin/myPhoto/Photography18/xxx"
-FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG"]
+class FancyBar(Bar):
+    message = 'Syncing'
+    fill = '*'
+    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d]'
 
 def search_files(root_name, filter, result):
     for dir_name in os.listdir(root_name):
@@ -18,32 +20,39 @@ def search_files(root_name, filter, result):
                 result.append(file_path)
     return result
 
-def let_go():
-    folder = FOLDER_SOURCE
+def backup_pictures(source_folder, dst_folder, file_filter):
+    folder = source_folder
     if os.path.exists(folder) == False:
-        print("FOLDER_SOURCE not exist. ", folder)
+        print("source folder not exist. ", folder)
         return
     
     result = []
-    
-    result = search_files(folder, FILE_FILTERS, result)
+    result = search_files(folder, file_filter, result)
     sorted(result)
     if len(result) == 0:
         print("No file found.")
         return
-
-    dst_folder = FOLDER_DESTINATION
     if os.path.exists(dst_folder) == False:
         os.makedirs(dst_folder)
 
+    bar = FancyBar()
+    bar.max = len(result)
     total_file_count = 0
-    for each_picture in result:
+    overwrite_count = 0
+    for n in range(len(result)):
+        each_picture = result[n]
         file_name = each_picture[each_picture.rfind("/")+1: len(each_picture)]
-        shutil.copyfile(each_picture, dst_folder+"/"+file_name)
-        total_file_count = total_file_count + 1
-        print(each_picture, "copied to ", dst_folder)
-
-    print("\nCOPY", total_file_count, "files DONE!!!")
+        dst_file_path = dst_folder + "/" + file_name
+        if os.path.exists(dst_file_path) == True:
+            overwrite_count += 1
+        ret = shutil.copyfile(each_picture, dst_file_path)
+        if ret:
+            total_file_count = total_file_count + 1
+        #print(each_picture, "copied to ", dst_folder)
+        bar.index = n + 1
+        bar.update()
+    bar.finish()
+    print("\nCOPY %d files DONE, %d files overwrited, actually %d copied!" % (total_file_count, overwrite_count, (total_file_count-overwrite_count)))
 
 if __name__ == '__main__':
-    let_go()
+    backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/Photography18/xxx", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"])

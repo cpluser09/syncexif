@@ -4,10 +4,6 @@ import shutil
 import time
 from progress.bar import Bar
 
-FOLDER_SOURCE = "/Users/junlin/Downloads"
-FOLDER_DESTINATION = "/Users/junlin/myPhoto2"
-#FOLDER_DESTINATION = "/Volumes/myPhoto"
-FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"]
 global G_TOTAL_SYNC_COUNT
 
 class FancyBar(Bar):
@@ -46,15 +42,15 @@ import math
 #         if self.now == self.total:
 #             print('')    
 
-def calc_dst_folder(source_file):
-    file_with_sub_folder = source_file.replace(FOLDER_SOURCE, "")
-    file_full_path = FOLDER_DESTINATION + file_with_sub_folder
+def calc_dst_folder(source_file, source_folder, dst_folder):
+    file_with_sub_folder = source_file.replace(source_folder, "")
+    file_full_path = dst_folder + file_with_sub_folder
     return file_full_path
 
-def sync_file(source_file):
+def sync_file(source_file, source_folder, dst_folder):
     global G_TOTAL_SYNC_COUNT
     #print("\ntry sync:", source_file)
-    dst_file = calc_dst_folder(source_file)
+    dst_file = calc_dst_folder(source_file, source_folder, dst_folder)
     if os.path.exists(dst_file) == True:
         #print("skip...")
         return False
@@ -80,29 +76,28 @@ def search_files(root_name, filter, result):
                 result.append(file_path)
     return result
 
-def sync(files):
+def sync(files, source_folder, dst_folder):
     bar = FancyBar()
     bar.max = len(files)
     for n in range(len(files)):
-        sync_file(files[n])
+        sync_file(files[n], source_folder, dst_folder)
         bar.index = n + 1
         bar.update()
     bar.finish()
 
-def let_go():
-    folder = FOLDER_SOURCE
-    if os.path.exists(folder) == False:
-        print("FOLDER_SOURCE not exist.", folder)
+def sync_pictures(source_folder, dst_folder, file_filters):
+    if os.path.exists(source_folder) == False:
+        print("source folder not exist.", source_folder)
         return
     global G_TOTAL_SYNC_COUNT
     G_TOTAL_SYNC_COUNT = 0
     result = []
-    result = search_files(folder, FILE_FILTERS, result)
-    sync(result)
+    result = search_files(source_folder, file_filters, result)
+    sync(result, source_folder, dst_folder)
     print("DONE. total %d source files, %d files synced." % (len(result), G_TOTAL_SYNC_COUNT))
     # pb = ProcessBar(10000)
     # for i in range(10000):
     #     pb.print_next()
 
 if __name__ == '__main__':
-    let_go()
+    sync_pictures("/Users/junlin/myPhoto", "/Users/junlin/myPhoto2", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"])
