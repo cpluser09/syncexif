@@ -1,13 +1,11 @@
 from backup_picture import backup_pictures
 from sync_pictures import sync_pictures
 
-#FOLDER_SOURCE = "/Volumes/FUJI"
-FOLDER_SOURCE = "/Users/junlin/Downloads"
+FOLDER_SOURCE = "/Volumes/FUJI"
 FOLDER_BACKUP = "/Users/junlin/myPhoto/Photography18/xxx"
 
 FOLDER_SYNC_SOURCE = "/Users/junlin/myPhoto"
-#FOLDER_SYNC_DESTINATION = "/Volumes/myPhoto"
-FOLDER_SYNC_DESTINATION = "/Users/junlin/myPhoto2"
+FOLDER_SYNC_DESTINATION = "/Volumes/myPhoto"
 
 FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"]
 

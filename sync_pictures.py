@@ -86,6 +86,7 @@ def sync(files, source_folder, dst_folder):
     bar.finish()
 
 def sync_pictures(source_folder, dst_folder, file_filters):
+    print("begin sync files...")
     if os.path.exists(source_folder) == False:
         print("source folder not exist.", source_folder)
         return
