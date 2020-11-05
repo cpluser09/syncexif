@@ -7,7 +7,7 @@ FOLDER_BACKUP = "/Users/junlin/myPhoto/Photography18/xxx"
 FOLDER_SYNC_SOURCE = "/Users/junlin/myPhoto"
 FOLDER_SYNC_DESTINATION = "/Volumes/myPhoto"
 
-FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"]
+FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"]
 
 
 if __name__ == '__main__':
