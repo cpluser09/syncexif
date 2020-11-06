@@ -53,7 +53,7 @@ def backup_pictures(source_folder, dst_folder, file_filter):
         bar.index = n + 1
         bar.update()
     bar.finish()
-    print("\nCOPY %d files DONE, %d files overwrited, actually %d copied!" % (total_file_count, overwrite_count, (total_file_count-overwrite_count)))
+    print("\nCOPY %d files DONE, %d files overwrited, actually %d copied to %s" % (total_file_count, overwrite_count, (total_file_count-overwrite_count), dst_folder))
 
 if __name__ == '__main__':
-    backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/Photography18/20201105_手机", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"])
+    backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/new/Photography18/20201106_手机", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])

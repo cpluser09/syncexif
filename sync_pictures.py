@@ -101,4 +101,4 @@ def sync_pictures(source_folder, dst_folder, file_filters):
     #     pb.print_next()
 
 if __name__ == '__main__':
-    sync_pictures("/Users/junlin/myPhoto", "/Users/junlin/myPhoto2", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd"])
+    sync_pictures("/Users/junlin/myPhoto", "/Users/junlin/myPhoto2", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
