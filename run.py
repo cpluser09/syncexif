@@ -3,7 +3,7 @@ from sync_pictures import sync_pictures
 from sync_exif import sync_exif
 
 FOLDER_SOURCE = "/Volumes/FUJI"
-FOLDER_BACKUP = "/Users/junlin/myPhoto/new/Photography18/20201107_人民广场"
+FOLDER_BACKUP = "/Users/junlin/myPhoto/Photography19/20201121_武康路_武定西路"
 
 FOLDER_SYNC_SOURCE = "/Users/junlin/myPhoto"
 FOLDER_SYNC_DESTINATION = "/Volumes/myPhoto"

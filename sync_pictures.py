@@ -86,7 +86,7 @@ def sync(files, source_folder, dst_folder):
     bar.finish()
 
 def sync_pictures(source_folder, dst_folder, file_filters):
-    print("begin sync files...")
+    print("begin sync files to %s ..." % dst_folder)
     if os.path.exists(source_folder) == False:
         print("source folder not exist.", source_folder)
         return
@@ -94,11 +94,21 @@ def sync_pictures(source_folder, dst_folder, file_filters):
     G_TOTAL_SYNC_COUNT = 0
     result = []
     result = search_files(source_folder, file_filters, result)
+    result = skip_exist_file(result, source_folder, dst_folder)
     sync(result, source_folder, dst_folder)
     print("DONE. total %d source files, %d files synced." % (len(result), G_TOTAL_SYNC_COUNT))
     # pb = ProcessBar(10000)
     # for i in range(10000):
     #     pb.print_next()
 
+def skip_exist_file(files, source_folder, dst_folder):
+    to_sync_files = []
+    for n in range(len(files)):
+        dst_file = calc_dst_folder(files[n], source_folder, dst_folder)
+        if os.path.exists(dst_file) == False:
+            to_sync_files.append(files[n])
+    return to_sync_files
+
+
 if __name__ == '__main__':
-    sync_pictures("/Users/junlin/myPhoto", "/Users/junlin/myPhoto2", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
+    sync_pictures("/Users/junlin/myPhoto", "/Volumes/myPhoto", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
