@@ -9,7 +9,8 @@ global G_TOTAL_SYNC_COUNT
 class FancyBar(Bar):
     message = 'Syncing'
     fill = '*'
-    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d]'
+    custom_info = ''
+    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d] - '
 
 import math
 
@@ -51,9 +52,6 @@ def sync_file(source_file, source_folder, dst_folder):
     global G_TOTAL_SYNC_COUNT
     #print("\ntry sync:", source_file)
     dst_file = calc_dst_folder(source_file, source_folder, dst_folder)
-    if os.path.exists(dst_file) == True:
-        #print("skip...")
-        return False
     dst_folder,_ = os.path.splitext(dst_file)
     dst_folder = dst_folder[0: dst_folder.rfind("/")]
     if os.path.exists(dst_folder) == False:
@@ -94,7 +92,9 @@ def sync_pictures(source_folder, dst_folder, file_filters):
     G_TOTAL_SYNC_COUNT = 0
     result = []
     result = search_files(source_folder, file_filters, result)
+    print("search done...")
     result = skip_exist_file(result, source_folder, dst_folder)
+    print("begin sync...")
     sync(result, source_folder, dst_folder)
     print("DONE. total %d source files, %d files synced." % (len(result), G_TOTAL_SYNC_COUNT))
     # pb = ProcessBar(10000)

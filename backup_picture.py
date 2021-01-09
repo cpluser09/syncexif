@@ -21,7 +21,7 @@ def search_files(root_name, filter, result):
     return result
 
 def backup_pictures(source_folder, dst_folder, file_filter):
-    print("begin backup files...")
+    print("begin backup SD CARD files...")
     folder = source_folder
     if os.path.exists(folder) == False:
         print("source folder not exist. ", folder)
