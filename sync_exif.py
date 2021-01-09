@@ -177,7 +177,7 @@ def insert_gps(source_file):
     origin_exif["GPS"] = gps_ifd
     exif_raw = piexif.dump(origin_exif)
     piexif.insert(exif_raw, source_file)
-    print("---->>", source_file)
+    print("---->>", source_file, "\n")
 
 def sync_exif(folder_path):
     files = search_files(folder_path)
