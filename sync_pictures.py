@@ -48,15 +48,15 @@ def calc_dst_folder(source_file, source_folder, dst_folder):
     file_full_path = dst_folder + file_with_sub_folder
     return file_full_path
 
-def sync_file(source_file, source_folder, dst_folder):
+def copy_file(source_file, source_folder, dst_folder):
     global G_TOTAL_SYNC_COUNT
     #print("\ntry sync:", source_file)
-    dst_file = calc_dst_folder(source_file, source_folder, dst_folder)
+    dst_file = source_file[1]
     dst_folder,_ = os.path.splitext(dst_file)
     dst_folder = dst_folder[0: dst_folder.rfind("/")]
     if os.path.exists(dst_folder) == False:
         os.makedirs(dst_folder)
-    shutil.copyfile(source_file, dst_file)
+    shutil.copyfile(source_file[0], source_file[1])
     G_TOTAL_SYNC_COUNT = G_TOTAL_SYNC_COUNT + 1
     #print("sync  to: %12d  %s" % (G_TOTAL_SYNC_COUNT, source_file))
     return True
@@ -78,7 +78,7 @@ def sync(files, source_folder, dst_folder):
     bar = FancyBar()
     bar.max = len(files)
     for n in range(len(files)):
-        sync_file(files[n], source_folder, dst_folder)
+        copy_file(files[n], source_folder, dst_folder)
         bar.index = n + 1
         bar.update()
     bar.finish()
@@ -94,6 +94,9 @@ def sync_pictures(source_folder, dst_folder, file_filters):
     result = search_files(source_folder, file_filters, result)
     print("search done...")
     result = skip_exist_file(result, source_folder, dst_folder)
+    if len(result) == 0:
+        print("No file sync.")
+        return
     print("begin sync...")
     sync(result, source_folder, dst_folder)
     print("DONE. total %d source files, %d files synced." % (len(result), G_TOTAL_SYNC_COUNT))
@@ -106,9 +109,16 @@ def skip_exist_file(files, source_folder, dst_folder):
     for n in range(len(files)):
         dst_file = calc_dst_folder(files[n], source_folder, dst_folder)
         if os.path.exists(dst_file) == False:
-            to_sync_files.append(files[n])
+            to_sync_files.append((files[n], dst_file))
+        else:
+            size_src = os.path.getsize(files[n])
+            size_dst = os.path.getsize(dst_file)
+            if size_dst != size_src:
+                to_sync_files.append((files[n], dst_file))
+                print("file changed, %d -> %d, %s" % (size_src, size_dst, files[n]))
     return to_sync_files
 
 
 if __name__ == '__main__':
     sync_pictures("/Users/junlin/myPhoto", "/Volumes/myPhoto", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
+    #sync_pictures("/Users/junlin/test/sync_src", "/Users/junlin/test/sync_dst", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
