@@ -70,7 +70,7 @@ def search_files(root_name, filter, result):
         else:
             file_name_with_path, ext = os.path.splitext(file_path)
             file_name = file_name_with_path [file_name_with_path.rfind("/")+1: len(file_name_with_path)]
-            if ext in filter and file_name[0] != "." and "Trashes" not in file_name_with_path:
+            if ext != ".DS_Store" and file_name[0] != "." and "Trashes" not in file_name_with_path:
                 result.append(file_path)
     result = sorted(result)
     return result
