@@ -89,6 +89,7 @@ def search_files(dirname):
         ext = os.path.splitext(apath)[1]
         if ext in filter:
             result.append(apath)
+    result = sorted(result)
     return result
 
 def insert_user_comment(comment, file_name):

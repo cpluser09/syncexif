@@ -72,6 +72,7 @@ def search_files(root_name, filter, result):
             file_name = file_name_with_path [file_name_with_path.rfind("/")+1: len(file_name_with_path)]
             if ext in filter and file_name[0] != "." and "Trashes" not in file_name_with_path:
                 result.append(file_path)
+    result = sorted(result)
     return result
 
 def sync(files, source_folder, dst_folder):
@@ -120,5 +121,5 @@ def skip_exist_file(files, source_folder, dst_folder):
 
 
 if __name__ == '__main__':
-    sync_pictures("/Users/junlin/myPhoto", "/Volumes/myPhoto", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
-    #sync_pictures("/Users/junlin/test/sync_src", "/Users/junlin/test/sync_dst", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV"])
+    sync_pictures("/Users/junlin/myPhoto", "/Volumes/myPhoto", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
+    #sync_pictures("/Users/junlin/test/sync_src", "/Users/junlin/test/sync_dst", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
