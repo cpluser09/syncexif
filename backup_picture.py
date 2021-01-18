@@ -2,12 +2,30 @@ import os
 import sys
 import shutil
 from progress.bar import Bar
+import exifread
 
 class FancyBar(Bar):
     copy_speed = 0
     message = 'Syncing'
     fill = '*'
     suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d - speed %(copy_speed)d MB/S]'
+
+def query_shot_time(file_name):
+    imgexif = open(file_name, 'rb')
+    if imgexif is None:
+        return ""
+
+    shot_time = ""
+    exif = exifread.process_file(imgexif)
+    if "EXIF DateTimeOriginal" in exif.keys():
+        shot_time = exif["EXIF DateTimeOriginal"].printable
+    elif "Image DateTimeOriginal" in exif.keys():
+        shot_time = exif["Image DateTimeOriginal"].printable
+
+    if len(shot_time) > 0:
+        shot_time = shot_time.replace(":", "").replace(" ", "")
+    imgexif.close()
+    return shot_time
 
 def search_files(root_name, filter, result):
     for dir_name in os.listdir(root_name):
@@ -46,6 +64,13 @@ def backup_pictures(source_folder, dst_folder, file_filter):
         each_picture = result[n]
         file_name = each_picture[each_picture.rfind("/")+1: len(each_picture)]
         dst_file_path = dst_folder + "/" + file_name
+
+        shot_time = query_shot_time(each_picture)
+        if len(shot_time) > 0:
+            original_path, original_file_name = os.path.split(dst_file_path)
+            output_name, output_ext_name = os.path.splitext(original_file_name)
+            dst_file_path = original_path + "/" + output_name + "_" + shot_time + output_ext_name
+
         if os.path.exists(dst_file_path) == True:
             overwrite_count += 1
         ret = shutil.copyfile(each_picture, dst_file_path)
@@ -62,4 +87,4 @@ def backup_pictures(source_folder, dst_folder, file_filter):
 
 if __name__ == '__main__':
     #backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/Photography19/20201121_武康路_武定西路", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
-    backup_pictures("/Users/junlin/Downloads", "/Users/junlin/test/backup", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
+    backup_pictures("/Users/junlin/test/sync_src", "/Users/junlin/test/backup", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
