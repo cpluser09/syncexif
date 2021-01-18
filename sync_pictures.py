@@ -7,10 +7,11 @@ from progress.bar import Bar
 global G_TOTAL_SYNC_COUNT
 
 class FancyBar(Bar):
+    copy_speed = 0
     message = 'Syncing'
     fill = '*'
     custom_info = ''
-    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d] - '
+    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d -  speed %(copy_speed)d MB/S]'
 
 import math
 
@@ -75,11 +76,15 @@ def search_files(root_name, filter, result):
     result = sorted(result)
     return result
 
-def sync(files, source_folder, dst_folder):
+def sync_all_files(files, source_folder, dst_folder):
     bar = FancyBar()
     bar.max = len(files)
+    total_copied_size = 0
     for n in range(len(files)):
         copy_file(files[n], source_folder, dst_folder)
+        total_copied_size += os.path.getsize(files[n])
+        if bar.elapsed != 0:
+            bar.copy_speed = total_copied_size / 1024 / 1024 / bar.elapsed
         bar.index = n + 1
         bar.update()
     bar.finish()
@@ -99,7 +104,7 @@ def sync_pictures(source_folder, dst_folder, file_filters):
         print("No file sync.")
         return
     print("begin sync...")
-    sync(result, source_folder, dst_folder)
+    sync_all_files(result, source_folder, dst_folder)
     print("DONE. total %d source files, %d files synced." % (len(result), G_TOTAL_SYNC_COUNT))
     # pb = ProcessBar(10000)
     # for i in range(10000):

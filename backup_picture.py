@@ -4,9 +4,10 @@ import shutil
 from progress.bar import Bar
 
 class FancyBar(Bar):
+    copy_speed = 0
     message = 'Syncing'
     fill = '*'
-    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d]'
+    suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d - speed %(copy_speed)d MB/S]'
 
 def search_files(root_name, filter, result):
     for dir_name in os.listdir(root_name):
@@ -40,6 +41,7 @@ def backup_pictures(source_folder, dst_folder, file_filter):
     bar.max = len(result)
     total_file_count = 0
     overwrite_count = 0
+    total_copied_size = 0
     for n in range(len(result)):
         each_picture = result[n]
         file_name = each_picture[each_picture.rfind("/")+1: len(each_picture)]
@@ -49,6 +51,9 @@ def backup_pictures(source_folder, dst_folder, file_filter):
         ret = shutil.copyfile(each_picture, dst_file_path)
         if ret:
             total_file_count = total_file_count + 1
+            total_copied_size += os.path.getsize(each_picture)
+            if bar.elapsed != 0:
+                bar.copy_speed = total_copied_size / 1024 / 1024 / bar.elapsed
         #print(each_picture, "copied to ", dst_folder)
         bar.index = n + 1
         bar.update()
@@ -56,4 +61,5 @@ def backup_pictures(source_folder, dst_folder, file_filter):
     print("\nCOPY %d files DONE, %d files overwrited, actually %d copied to %s" % (total_file_count, overwrite_count, (total_file_count-overwrite_count), dst_folder))
 
 if __name__ == '__main__':
-    backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/Photography19/20201121_武康路_武定西路", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
+    #backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/Photography19/20201121_武康路_武定西路", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
+    backup_pictures("/Users/junlin/Downloads", "/Users/junlin/test/backup", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
