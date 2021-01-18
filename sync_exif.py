@@ -161,13 +161,20 @@ def insert_gps(source_file):
     # if "GPS" in origin_exif.keys() and piexif.GPSIFD.GPSLongitude in origin_exif["GPS"].keys():
     #     print("already has GPS in exif.", source_file)
     #     return
-    if "Exif" not in origin_exif.keys() or len(origin_exif["Exif"]) == 0:
+    print(origin_exif)
+    if "Exif" not in origin_exif.keys() and "Image" not in origin_exif.keys():
         print("no exif.", source_file)
         return
-    if piexif.ExifIFD.DateTimeOriginal not in origin_exif["Exif"]:
-        print("no shot time.", source_file)
+    shot_time = ""
+    if piexif.ExifIFD.DateTimeOriginal in origin_exif["Exif"]:
+        shot_time = origin_exif["Exif"][piexif.ExifIFD.DateTimeOriginal]
+    else:
+        shot_time = origin_exif["Image"][36867]
+    
+    if len(shot_time) == 0:
+        print("No exif or image info.")
         return
-    shot_time = origin_exif["Exif"][piexif.ExifIFD.DateTimeOriginal]
+    
     #shot_time = b"2020:08:14 20:05:56"
     longitude, latitude = queryGps(shot_time.decode("utf8"))
     if longitude is None or latitude is None:
@@ -194,6 +201,8 @@ def sync_exif(folder_path):
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print("arguments error!\r\n-h shows usage.")
+        #insert_gps("/Users/junlin/test/sync_src/IMG_20210105_141100.dng")
+        #insert_gps("/Users/junlin/test/sync_src/IMG_9037.jpg")
         #process("/Users/junlin/test/gps")
         sys.exit()
     for arg in sys.argv[1:]:
