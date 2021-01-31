@@ -72,6 +72,7 @@ def search_files(root_name, filter, result):
             file_name_with_path, ext = os.path.splitext(file_path)
             file_name = file_name_with_path [file_name_with_path.rfind("/")+1: len(file_name_with_path)]
             if ext != ".DS_Store" and file_name[0] != "." and "Trashes" not in file_name_with_path:
+            #if ext != ".DS_Store" and file_name[0] != "." and "Trashes" not in file_name_with_path and ext in filter:
                 result.append(file_path)
     result = sorted(result)
     return result
@@ -82,12 +83,16 @@ def sync_all_files(files, source_folder, dst_folder):
     total_copied_size = 0
     for n in range(len(files)):
         copy_file(files[n], source_folder, dst_folder)
-        total_copied_size += os.path.getsize(files[n])
+        file_name_with_path, ext = os.path.splitext(files[n][0])
+        # if ext in G_FILE_FILTER:
+        #     total_copied_size += os.path.getsize(files[n][0])
+        total_copied_size += os.path.getsize(files[n][0])
         if bar.elapsed != 0:
             bar.copy_speed = total_copied_size / 1024 / 1024 / bar.elapsed
         bar.index = n + 1
         bar.update()
     bar.finish()
+    return total_copied_size
 
 def sync_pictures(source_folder, dst_folder, file_filters):
     print("begin sync files to %s ..." % dst_folder)
@@ -104,8 +109,8 @@ def sync_pictures(source_folder, dst_folder, file_filters):
         print("No file sync.")
         return
     print("begin sync...")
-    sync_all_files(result, source_folder, dst_folder)
-    print("DONE. total %d source files, %d files synced." % (len(result), G_TOTAL_SYNC_COUNT))
+    total_size = sync_all_files(result, source_folder, dst_folder)
+    print("DONE. total %d source files, %d files synced, total %dM" % (len(result), G_TOTAL_SYNC_COUNT, total_size / 1024 / 1024))
     # pb = ProcessBar(10000)
     # for i in range(10000):
     #     pb.print_next()

@@ -9,13 +9,13 @@ from photo_summary import process
 JUST_SYNC_FILE=1
 
 FOLDER_SOURCE = "/Volumes/FUJI"
-#FOLDER_BACKUP = "/Users/junlin/myPhoto/Photography20/20210108_绍兴路_嘉善路"
-FOLDER_BACKUP = "/Volumes/myPhoto/Photography20/20210117_福州路_四川北路_虎丘路"
+FOLDER_BACKUP = "/Users/junlin/myPhoto/Photography20/20210128_GR2"
+#FOLDER_BACKUP = "/Volumes/myPhoto/Photography20/20210128_GR2"
 
 FOLDER_SYNC_SOURCE = "/Users/junlin/myPhoto"
 FOLDER_SYNC_DESTINATION = "/Volumes/myPhoto"
 
-FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"]
+FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG", ".tif", ".TIF"]
 
 def generate_photo_summary(source_folder):
     os.chdir("../photosummary")

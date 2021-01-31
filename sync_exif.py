@@ -144,6 +144,7 @@ def queryGps(shot_time):
             if gps_date != date:
                 continue
             diff = hms_to_second(gps_time) - hms_to_second(time)
+            #diff = hms_to_second(gps_time) - (hms_to_second(time) + 12 * 3600)
             if abs(diff) < 5:                
                 print("found shot time: ", shot_time, ", gps time: ", gps_date, gps_time, gps["longitude"], gps["latitude"], gps["thoroughfare"], "diff: ", diff, "secs")
                 return (gps["longitude"], gps["latitude"])
@@ -161,7 +162,7 @@ def insert_gps(source_file):
     # if "GPS" in origin_exif.keys() and piexif.GPSIFD.GPSLongitude in origin_exif["GPS"].keys():
     #     print("already has GPS in exif.", source_file)
     #     return
-    print(origin_exif)
+    #print(origin_exif)
     if "Exif" not in origin_exif.keys() and "Image" not in origin_exif.keys():
         print("no exif.", source_file)
         return
