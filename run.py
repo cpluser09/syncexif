@@ -8,11 +8,13 @@ from photo_summary import process
 
 JUST_SYNC_FILE=1
 
-FOLDER_SOURCE = "/Volumes/FUJI"
-FOLDER_BACKUP = "/Users/junlin/myPhoto/Photography20/20210128_GR2"
-#FOLDER_BACKUP = "/Volumes/myPhoto/Photography20/20210128_GR2"
+#FOLDER_SOURCE = "/Volumes/FUJI"
+FOLDER_SOURCE = "/Volumes/RICOH_GR"
+FOLDER_BACKUP = "/Volumes/HIKVISION/myPhoto/Photography21/20210203_家庭"
 
-FOLDER_SYNC_SOURCE = "/Users/junlin/myPhoto"
+
+FOLDER_SYNC_SOURCE = "/Volumes/HIKVISION/myPhoto"
+#FOLDER_SYNC_SOURCE = "/Users/junlin/myPhoto"
 FOLDER_SYNC_DESTINATION = "/Volumes/myPhoto"
 
 FILE_FILTERS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG", ".tif", ".TIF"]

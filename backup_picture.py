@@ -4,26 +4,45 @@ import shutil
 from progress.bar import Bar
 import exifread
 
+shot_time_record = dict()
+
 class FancyBar(Bar):
     copy_speed = 0
     message = 'Syncing'
     fill = '*'
     suffix = '%(percent).1f%% - %(elapsed)ds [remaining %(remaining)d - total %(max)d - speed %(copy_speed)d MB/S]'
 
+def save_shot_time(file_name, shot_time):
+    global shot_time_record
+    shot_time_record[os.path.splitext(file_name)[0]] = shot_time
+    
+def query_shot_time_from_history(file_name):
+    time = ""
+    global shot_time_record
+    try:
+        time = shot_time_record[os.path.splitext(file_name)[0]]
+    except:
+        time = ""
+    return time
+
 def query_shot_time(file_name):
+    shot_time = ""
     imgexif = open(file_name, 'rb')
     if imgexif is None:
-        return ""
+        shot_time = query_shot_time_from_history(file_name)
+        return shot_time
 
-    shot_time = ""
     exif = exifread.process_file(imgexif)
     if "EXIF DateTimeOriginal" in exif.keys():
         shot_time = exif["EXIF DateTimeOriginal"].printable
     elif "Image DateTimeOriginal" in exif.keys():
         shot_time = exif["Image DateTimeOriginal"].printable
+    else:
+        shot_time = query_shot_time_from_history(file_name)
 
     if len(shot_time) > 0:
         shot_time = shot_time.replace(":", "").replace(" ", "")
+        save_shot_time(file_name, shot_time)
     imgexif.close()
     return shot_time
 
@@ -86,5 +105,5 @@ def backup_pictures(source_folder, dst_folder, file_filter):
     print("\nCOPY %d files DONE, %d files overwrited, actually %d copied to %s" % (total_file_count, overwrite_count, (total_file_count-overwrite_count), dst_folder))
 
 if __name__ == '__main__':
-    #backup_pictures("/Users/junlin/Downloads", "/Users/junlin/myPhoto/Photography19/20201121_武康路_武定西路", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
-    backup_pictures("/Users/junlin/test/sync_src", "/Users/junlin/test/backup", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
+    backup_pictures("/Users/junlin/test/sdcard", "/Users/junlin/test/backup", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
+    #backup_pictures("/Users/junlin/test/sync_src", "/Users/junlin/test/backup", [".jpg", ".JPG", ".jpeg", ".JPEG", ".raf", ".RAF", ".png", ".PNG", ".PSD", ".psd", ".mp4", ".MP4", ".mov", ".MOV", ".dng", ".DNG"])
