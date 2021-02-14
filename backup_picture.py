@@ -67,7 +67,8 @@ def backup_pictures(source_folder, dst_folder, file_filter):
     
     result = []
     result = search_files(folder, file_filter, result)
-    sorted(result)
+    result = sorted(result, key=lambda x: os.path.splitext(x)[1])
+
     if len(result) == 0:
         print("No file found.")
         return
